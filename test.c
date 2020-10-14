@@ -46,23 +46,31 @@ void assign(int num_thread,int amount,FILE *fp,int col[]){
 
 void set(Thread thread[],int col[],int num_thread){
     int i = 0,begin = 0,tail = 0;
+
     for(i=0;i<num_thread;i++){
+        thread[i].number = i;
         tail += col[i];
         thread[i].start = begin;//從1開始
         thread[i].end = tail-1;
         begin += col[i];
         printf("%d %d \n",thread[i].start,thread[i].end);
+
+        thread[i].fput = fopen("output.json","a");
+        thread[i].fin = fopen("input1.csv","r");
     }
 }
 
 void* apart(void* arg){
-    Thread *thread = (Thread*) arg;
-    thread->str = (char*)malloc(sizeof(char)*240);
-    int position = thread->end;
-    fseek(fin,thread->start,SEEK_SET);
-    while(position != ftell(fin)){
-        printf("!%ld\n",ftell(fin));
-        if(fgets(thread->str,240,fin)!=NULL){
+    Thread *thr = (Thread*) arg;
+    thr->str = (char*)malloc(sizeof(char)*240);
+    int index = thr->number;
+    int position = thr->end;
+
+
+    fseek(thr->fin,thr->start,SEEK_SET);
+    while(position != ftell(thr->fin)){
+        printf("!%ld\n",ftell(thr->fin));
+        if(fgets(thr->str,240,thr->fin)!=NULL){
 
         }
         else break;
@@ -87,10 +95,7 @@ int main(int argc,char* argv[]){
     close(fd);
     int j;
     FILE *fput[num_thread],*fin[num_thread],*fp;
-    /*for(j=0;j<num_thread;j++){
-        fput[j] = fopen("output.json","a");
-        fin[j] = fopen("input1.csv","r");
-    }*/
+    
     //一些初始化
     int i,rc,col[num_thread];//紀錄一個thread要讀幾個位元
     for(i=0;i<num_thread;i++) col[i] = 0;
@@ -114,14 +119,14 @@ int main(int argc,char* argv[]){
     
 
     ///start
-    /*for(i=0;i<num_thread;i++){
+    for(i=0;i<num_thread;i++){
         printf("%d ",i);
         rc = pthread_create(&tid[i],&attr,apart,&thread[i]);
         if(rc){
             printf("error return code from thread%d is %d\n",i,rc);
             exit(-1);
         }
-    }*/
+    }
     printf("before join\n");
     //pthread_join(tid[num_thread],NULL);
     //fclose(fin[num_thread]);
@@ -129,8 +134,8 @@ int main(int argc,char* argv[]){
     //free(iput);
     //pthread_exit(0);
     for(i=0;i<num_thread;i++){
-        fclose(fput[i]);
-        fclose(fin[i]);
+        fclose(thread[i].fput);
+        fclose(thread[i].fin);
     }
     return 0;
 }
