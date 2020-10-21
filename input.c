@@ -1,12 +1,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
-#define var 50
+#define var 5100000
 //5100000
 int main(){
     int i,j,sign,number;
     srand((unsigned int)time(NULL));
-    FILE *fout = fopen("input1.csv","w");
+    FILE *fout = fopen("input.csv","w");
     if(!fout){
         printf("open fail\n");
         exit(0);
